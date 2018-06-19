@@ -106,6 +106,7 @@ properties are passed to the log adapter's constructor as an array. ::
 
     namespace App\Log\Engine;
     use Cake\Log\Engine\BaseLog;
+    use Cake\ORM\TableRegistry;
 
     class DatabaseLog extends BaseLog
     {
@@ -117,7 +118,15 @@ properties are passed to the log adapter's constructor as an array. ::
 
         public function log($level, $message, array $context = [])
         {
-            // Write to the database.
+            // Initalize the model.
+            $logTableName = $this->getConfig('model'); //get the model name from the config which is 'LogEntry'.
+            $logTableObject = TableRegistry::getTableLocator()->get($logTableName); //initialize the model object.
+            
+            // Example write into the model (which is log_entry). 
+            $logEntry = $logTableObject->newEntity();
+            $logEntry->level = $level;
+            $logEntry->message = $message;
+            $logTableObject->save($logEntry);
         }
     }
 
